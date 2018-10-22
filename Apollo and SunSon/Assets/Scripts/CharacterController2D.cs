@@ -11,20 +11,21 @@ public class CharacterController2D : MonoBehaviour
     private void Start()
     {
         currentSpeed = Speed;
-        RightDashPoint.Translate(new Vector3(DashLength, 0f, 0f));
-        LeftDashPoint.Translate(new Vector3(-DashLength, 0f, 0f));
+        currentDashLengthRight = InitialDashLength;
+        currentDashLengthLeft = InitialDashLength;
     }
 
     Rigidbody2D rb;
-
-    public Transform RightDashPoint;
-    public Transform LeftDashPoint;
 
     public float Speed = 3f;
     public float SprintSpeed = 4f;
     float currentSpeed;
 
-    public float DashLength = 1f;
+    public Transform RightDashPoint;
+    public Transform LeftDashPoint;
+    public float InitialDashLength = 1f;
+    float currentDashLengthRight;
+    float currentDashLengthLeft;
     public bool canDashRight = true;
     public bool canDashLeft = true;
 
@@ -53,7 +54,22 @@ public class CharacterController2D : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(GroundCheck.position, CheckRadius, WhatIsGround);
 
         // Jump
-        if(isGrounded && Input.GetButton("Jump"))
+        // if we are on the ground, we can jump
+        if (isGrounded)
+        {
+            extraJumpValue = ExtraJumps;
+        }
+
+        if (isGrounded && Input.GetButton("Jump"))
+        {
+            rb.velocity = Vector2.up * JumpForce;
+        }
+        if (Input.GetButtonDown("Jump") && extraJumpValue > 0)
+        {
+            rb.velocity = Vector2.up * JumpForce;
+            extraJumpValue--;
+        }
+        else if (Input.GetButtonDown("Jump") && extraJumpValue == 0 && isGrounded)
         {
             rb.velocity = Vector2.up * JumpForce;
         }
@@ -85,28 +101,30 @@ public class CharacterController2D : MonoBehaviour
         {
             if (canDashRight && Input.GetKeyDown(KeyCode.C))
             {
-                transform.Translate(new Vector3(DashLength, 0f, 0f));
+                transform.Translate(new Vector3(currentDashLengthRight, 0f, 0f));
             }
         }
         if (canDashLeft && Input.GetKey(KeyCode.A))
         {
             if (Input.GetKeyDown(KeyCode.C))
             {
-                transform.Translate(new Vector3(-DashLength, 0f, 0f));
+                transform.Translate(new Vector3(-currentDashLengthLeft, 0f, 0f));
             }
         }
         // End Dash
     }
 
-    public void CanDash(int dashDir, bool canDash)
+    public void CanDash(int dashDir, bool canDash, float dashLength)
     {
         switch(dashDir)
         {
             case 1:
                 canDashRight = canDash;
+                currentDashLengthRight = dashLength;
                 break;
             case 2:
                 canDashLeft = canDash;
+                currentDashLengthLeft = dashLength;
                 break;
         }
     }

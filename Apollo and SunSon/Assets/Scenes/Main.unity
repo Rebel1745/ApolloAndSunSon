@@ -407,7 +407,7 @@ GameObject:
   m_Layer: 0
   m_Name: LeftDashPoint
   m_TagString: Untagged
-  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -435,8 +435,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19de706b958a302468afcf36043f700d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cc: {fileID: 0}
+  cc: {fileID: 1637370203}
+  col: {fileID: 1637370205}
   DashDirection: 2
+  MinDistanceFromObject: 0.25
 --- !u!61 &908184449
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1081,7 +1083,7 @@ GameObject:
   m_Layer: 0
   m_Name: RightDashPoint
   m_TagString: Untagged
-  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -1109,8 +1111,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19de706b958a302468afcf36043f700d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cc: {fileID: 0}
+  cc: {fileID: 1637370203}
+  col: {fileID: 1637370205}
   DashDirection: 1
+  MinDistanceFromObject: 0.25
 --- !u!61 &1479188454
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1231,16 +1235,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6b785b8455f35d45ba526583e0d7ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RightDashPoint: {fileID: 1479188452}
-  LeftDashPoint: {fileID: 908184447}
   Speed: 6
   SprintSpeed: 10
-  DashLength: 1
+  RightDashPoint: {fileID: 1479188452}
+  LeftDashPoint: {fileID: 908184447}
+  InitialDashLength: 1
   canDashRight: 1
   canDashLeft: 1
   JumpForce: 7
-  ExtraJumps: 0
-  FallMultiplier: 2.5
+  ExtraJumps: 1
+  FallMultiplier: 4
   LowJumpMultiplier: 2
   isGrounded: 0
   GroundCheck: {fileID: 1884710518}
