@@ -12,10 +12,17 @@ public class CharacterController2D : MonoBehaviour
         {
             rb = GetComponent<Rigidbody2D>();
         }
+
+        lastTapTimeD = 0;
+        lastTapTimeA = 0;
+        currentSpeed = Speed;
     }
 
-    public float Speed = 40f;
-    public float JumpForce = 400f;                          // Amount of force added when the player jumps.
+    public float Speed = 3f;
+    public float SprintSpeed = 4f;
+    float currentSpeed;
+    public float JumpForce = 10f;                          // Amount of force added when the player jumps.
+    public float DashForce = 50f;
     [Range(0, 1)] public float CrouchSpeed = .36f;          // Amount of maxSpeed applied to crouching movement. 1 = 100%
     [Range(0, .3f)] public float MovementSmoothing = .05f;
     public float fallMultiplier = 2.5f;
@@ -23,19 +30,90 @@ public class CharacterController2D : MonoBehaviour
 
     float move;
     bool facingRight = true;  // For determining which way the player is currently facing.
-    Vector3 velocity = Vector3.zero;
     bool jump = false;
     bool crouch = false;
 
+    public bool isGrounded;
+    public Transform groundCheck;
+    public float checkRadius;
+    public LayerMask whatIsGround;
+
+    public int extraJumps;
+    int extraJumpValue;
+
+    public float tapSpeed = 0.5f; //in seconds
+    private float lastTapTimeD = 0;
+    private float lastTapTimeA = 0;
+
+    public float JumpTime;
+    private float jumpTimeCounter;
+
     void Update()
     {
-        move = Input.GetAxisRaw("Horizontal") * Speed;
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
 
-        if (Input.GetButtonDown("Jump"))
+        // if we are on the ground, we can jump
+        if (isGrounded)
         {
-            jump = true;
+            extraJumpValue = extraJumps;
         }
 
+        // Sprint
+        if(Input.GetButton("Sprint"))
+        {
+            currentSpeed = SprintSpeed;
+        }
+        else
+        {
+            currentSpeed = Speed;
+        }
+        // END Sprint
+
+        // Jump
+        // TODO Allow x axis movement when jumping
+        if (Input.GetButtonDown("Jump") && extraJumpValue > 0)
+        {
+            jump = true;
+            jumpTimeCounter = JumpTime;
+            rb.velocity = Vector2.up * JumpForce;
+            extraJumpValue--;
+        } else if(Input.GetButtonDown("Jump") && extraJumpValue == 0 && isGrounded)
+        {
+            jump = true;
+            jumpTimeCounter = JumpTime;
+            rb.velocity = Vector2.up * JumpForce;
+        }
+
+        // if we hold down Jump, go higher
+        if (Input.GetButton("Jump") && jump)
+        {
+            if (jumpTimeCounter > 0)
+            {
+                rb.velocity = Vector2.up * JumpForce;
+                jumpTimeCounter -= Time.deltaTime;
+            }
+            else
+            {
+                jump = false;
+            }
+        }
+        if(Input.GetButtonUp("Jump"))
+        {
+            jump = false;
+        }
+
+        // if jumping or falling, alter gravity to allow for medium and large jumps
+        if (rb.velocity.y < 0)
+        {
+            rb.velocity += Vector2.up * Physics2D.gravity.y * fallMultiplier * Time.deltaTime;
+        }
+        else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
+        {
+            rb.velocity += Vector2.up * Physics2D.gravity.y * lowJumpMultiplier * Time.deltaTime;
+        }
+        // END Jump
+
+        // Crouch
         if (Input.GetButtonDown("Crouch"))
         {
             crouch = true;
@@ -44,23 +122,31 @@ public class CharacterController2D : MonoBehaviour
         {
             crouch = false;
         }
+        // END Crouch
 
-        // if jumping or falling, alter gravity to allow for medium and large jumps
-        if(rb.velocity.y < 0)
+        // dash (double tap)
+        if (Input.GetKeyDown(KeyCode.D))
         {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * fallMultiplier * Time.deltaTime;
-        }
-        else if(rb.velocity.y > 0 && !Input.GetButton("Jump")){
-            rb.velocity += Vector2.up * Physics2D.gravity.y * lowJumpMultiplier * Time.deltaTime;
-        }
-    }
+            if ((Time.time - lastTapTimeD) < tapSpeed)
+            {
+                Debug.Log("Dash Right");
+                Dash(true);
+            }
 
-    void FixedUpdate()
-    {
-        // Move the character by finding the target velocity
-        Vector3 targetVelocity = new Vector2(move * 10f * Time.fixedDeltaTime, rb.velocity.y);
-        // And then smoothing it out and applying it to the character
-        rb.velocity = Vector3.SmoothDamp(rb.velocity, targetVelocity, ref velocity, MovementSmoothing);
+            lastTapTimeD = Time.time;
+        }
+
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            if ((Time.time - lastTapTimeA) < tapSpeed)
+            {
+                Debug.Log("Dash Left");
+                Dash(false);
+            }
+
+            lastTapTimeA = Time.time;
+        }
+        // end dash
 
         // If the input is moving the player right and the player is facing left...
         if (move > 0 && !facingRight)
@@ -74,13 +160,12 @@ public class CharacterController2D : MonoBehaviour
             // ... flip the player.
             Flip();
         }
+    }
 
-        if (jump)
-        {
-            rb.AddForce(new Vector2(0f, JumpForce));
-            jump = false;
-        }
-        
+    void FixedUpdate()
+    {
+        move = Input.GetAxisRaw("Horizontal") * currentSpeed;
+        rb.velocity = new Vector2(move * currentSpeed, rb.velocity.y);
     }
 
     private void Flip()
@@ -92,5 +177,25 @@ public class CharacterController2D : MonoBehaviour
         Vector3 theScale = transform.localScale;
         theScale.x *= -1;
         transform.localScale = theScale;
+    }
+       
+    public enum DashState
+    {
+        Ready,
+        Dashing,
+        Cooldown
+    }
+    void Dash(bool dashRight)
+    {
+        if (dashRight)
+            rb.AddForce(Vector2.right * DashForce);
+        else
+            rb.AddForce(Vector2.left * DashForce);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(groundCheck.position, checkRadius);
     }
 }

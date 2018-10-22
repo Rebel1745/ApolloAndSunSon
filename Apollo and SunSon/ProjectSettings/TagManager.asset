@@ -15,8 +15,8 @@ TagManager:
   - 
   - Player
   - Enemy
-  - 
-  - 
+  - SunSon
+  - Ground
   - 
   - 
   - 
@@ -43,6 +43,9 @@ TagManager:
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Characters
+    uniqueID: 1598539197
     locked: 0
   - name: Foreground
     uniqueID: 3970640637
