@@ -3,63 +3,69 @@ using UnityEngine.Events;
 
 public class CharacterController2D : MonoBehaviour
 {
-
-    public Rigidbody2D rb;
-
-    void Awake()
+    private void Awake()
     {
-        if(rb == null)
-        {
-            rb = GetComponent<Rigidbody2D>();
-        }
+        rb = GetComponent<Rigidbody2D>();
+    }
 
-        lastTapTimeD = 0;
-        lastTapTimeA = 0;
+    private void Start()
+    {
         currentSpeed = Speed;
     }
+
+    Rigidbody2D rb;
 
     public float Speed = 3f;
     public float SprintSpeed = 4f;
     float currentSpeed;
-    public float JumpForce = 10f;                          // Amount of force added when the player jumps.
-    public float DashForce = 50f;
-    [Range(0, 1)] public float CrouchSpeed = .36f;          // Amount of maxSpeed applied to crouching movement. 1 = 100%
-    [Range(0, .3f)] public float MovementSmoothing = .05f;
-    public float fallMultiplier = 2.5f;
-    public float lowJumpMultiplier = 2f;
 
-    float move;
-    bool facingRight = true;  // For determining which way the player is currently facing.
-    bool jump = false;
-    bool crouch = false;
+    public float DashSpeed = 5f;
+
+    public float JumpForce = 10f;
+    public int ExtraJumps;
+    int extraJumpValue;
+    public float FallMultiplier = 2.5f;
+    public float LowJumpMultiplier = 2f;
+
+    public float DashForce = 50f;
+
+    float moveInput;
+    bool isFacingRight = true;
 
     public bool isGrounded;
-    public Transform groundCheck;
-    public float checkRadius;
-    public LayerMask whatIsGround;
+    public Transform GroundCheck;
+    public float CheckRadius;
+    public LayerMask WhatIsGround;
 
-    public int extraJumps;
-    int extraJumpValue;
-
-    public float tapSpeed = 0.5f; //in seconds
-    private float lastTapTimeD = 0;
-    private float lastTapTimeA = 0;
-
-    public float JumpTime;
-    private float jumpTimeCounter;
-
-    void Update()
+    private void FixedUpdate()
     {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
+        moveInput = Input.GetAxisRaw("Horizontal");
+        rb.velocity = new Vector2(moveInput * currentSpeed, rb.velocity.y);
+    }
 
-        // if we are on the ground, we can jump
-        if (isGrounded)
+    private void Update()
+    {
+        isGrounded = Physics2D.OverlapCircle(GroundCheck.position, CheckRadius, WhatIsGround);
+
+        // Jump
+        if(isGrounded && Input.GetButton("Jump"))
         {
-            extraJumpValue = extraJumps;
+            rb.velocity = Vector2.up * JumpForce;
         }
 
+        // if jumping or falling, alter gravity to allow for medium and large jumps
+        if (rb.velocity.y < 0)
+        {
+            rb.velocity += Vector2.up * Physics2D.gravity.y * FallMultiplier * Time.deltaTime;
+        }
+        else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
+        {
+            rb.velocity += Vector2.up * Physics2D.gravity.y * LowJumpMultiplier * Time.deltaTime;
+        }
+        // END Jump
+
         // Sprint
-        if(Input.GetButton("Sprint"))
+        if (Input.GetButton("Sprint"))
         {
             currentSpeed = SprintSpeed;
         }
@@ -67,135 +73,35 @@ public class CharacterController2D : MonoBehaviour
         {
             currentSpeed = Speed;
         }
-        // END Sprint
+        //
 
-        // Jump
-        // TODO Allow x axis movement when jumping
-        if (Input.GetButtonDown("Jump") && extraJumpValue > 0)
+        // Dash
+        if (Input.GetKey(KeyCode.D))
         {
-            jump = true;
-            jumpTimeCounter = JumpTime;
-            rb.velocity = Vector2.up * JumpForce;
-            extraJumpValue--;
-        } else if(Input.GetButtonDown("Jump") && extraJumpValue == 0 && isGrounded)
-        {
-            jump = true;
-            jumpTimeCounter = JumpTime;
-            rb.velocity = Vector2.up * JumpForce;
-        }
-
-        // if we hold down Jump, go higher
-        if (Input.GetButton("Jump") && jump)
-        {
-            if (jumpTimeCounter > 0)
+            if (Input.GetKeyDown(KeyCode.C))
             {
-                rb.velocity = Vector2.up * JumpForce;
-                jumpTimeCounter -= Time.deltaTime;
-            }
-            else
-            {
-                jump = false;
+                Debug.Log("D");
+                /*float velX = rb.velocity.x;
+                float newVel = velX + DashForce;
+                rb.velocity = new Vector2(newVel, rb.velocity.y);
+                rb.AddForce(Vector2.right * DashForce);*/
+                //rb.velocity = Vector2.right * DashSpeed;
+                transform.Translate(Vector3.right);
             }
         }
-        if(Input.GetButtonUp("Jump"))
+        if (Input.GetKey(KeyCode.A))
         {
-            jump = false;
-        }
-
-        // if jumping or falling, alter gravity to allow for medium and large jumps
-        if (rb.velocity.y < 0)
-        {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * fallMultiplier * Time.deltaTime;
-        }
-        else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
-        {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * lowJumpMultiplier * Time.deltaTime;
-        }
-        // END Jump
-
-        // Crouch
-        if (Input.GetButtonDown("Crouch"))
-        {
-            crouch = true;
-        }
-        else if (Input.GetButtonUp("Crouch"))
-        {
-            crouch = false;
-        }
-        // END Crouch
-
-        // dash (double tap)
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            if ((Time.time - lastTapTimeD) < tapSpeed)
+            if (Input.GetKeyDown(KeyCode.C))
             {
-                Debug.Log("Dash Right");
-                Dash(true);
+                Debug.Log("A");
+                /*float velX = rb.velocity.x;
+                float newVel = velX + DashForce;
+                rb.velocity = new Vector2(newVel, rb.velocity.y);
+                rb.AddForce(Vector2.left * DashForce);*/
+                //rb.velocity = Vector2.left * DashSpeed;
+                transform.Translate(Vector3.left);
             }
-
-            lastTapTimeD = Time.time;
         }
-
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            if ((Time.time - lastTapTimeA) < tapSpeed)
-            {
-                Debug.Log("Dash Left");
-                Dash(false);
-            }
-
-            lastTapTimeA = Time.time;
-        }
-        // end dash
-
-        // If the input is moving the player right and the player is facing left...
-        if (move > 0 && !facingRight)
-        {
-            // ... flip the player.
-            Flip();
-        }
-        // Otherwise if the input is moving the player left and the player is facing right...
-        else if (move < 0 && facingRight)
-        {
-            // ... flip the player.
-            Flip();
-        }
-    }
-
-    void FixedUpdate()
-    {
-        move = Input.GetAxisRaw("Horizontal") * currentSpeed;
-        rb.velocity = new Vector2(move * currentSpeed, rb.velocity.y);
-    }
-
-    private void Flip()
-    {
-        // Switch the way the player is labelled as facing.
-        facingRight = !facingRight;
-
-        // Multiply the player's x local scale by -1.
-        Vector3 theScale = transform.localScale;
-        theScale.x *= -1;
-        transform.localScale = theScale;
-    }
-       
-    public enum DashState
-    {
-        Ready,
-        Dashing,
-        Cooldown
-    }
-    void Dash(bool dashRight)
-    {
-        if (dashRight)
-            rb.AddForce(Vector2.right * DashForce);
-        else
-            rb.AddForce(Vector2.left * DashForce);
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(groundCheck.position, checkRadius);
+        // End Dash
     }
 }

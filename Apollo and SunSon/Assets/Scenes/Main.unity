@@ -923,7 +923,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1434760408}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.15, y: -2.8, z: 1.92}
+  m_LocalPosition: {x: 4.15, y: -0.94, z: 1.92}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 41949098}
@@ -1095,24 +1095,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6b785b8455f35d45ba526583e0d7ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rb: {fileID: 0}
-  Speed: 3
-  SprintSpeed: 4
-  JumpForce: 5
+  Speed: 6
+  SprintSpeed: 10
+  DashSpeed: 100
+  JumpForce: 7
+  ExtraJumps: 0
+  FallMultiplier: 2.5
+  LowJumpMultiplier: 2
   DashForce: 500
-  CrouchSpeed: 0.36
-  MovementSmoothing: 0.05
-  fallMultiplier: 10
-  lowJumpMultiplier: 2
   isGrounded: 0
-  groundCheck: {fileID: 1884710518}
-  checkRadius: 0.1
-  whatIsGround:
+  GroundCheck: {fileID: 1884710518}
+  CheckRadius: 0.1
+  WhatIsGround:
     serializedVersion: 2
     m_Bits: 2048
-  extraJumps: 1
-  tapSpeed: 0.5
-  JumpTime: 0.35
 --- !u!50 &1637370204
 Rigidbody2D:
   serializedVersion: 4
