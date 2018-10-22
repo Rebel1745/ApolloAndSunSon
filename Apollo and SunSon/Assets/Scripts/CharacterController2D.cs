@@ -11,23 +11,28 @@ public class CharacterController2D : MonoBehaviour
     private void Start()
     {
         currentSpeed = Speed;
+        RightDashPoint.Translate(new Vector3(DashLength, 0f, 0f));
+        LeftDashPoint.Translate(new Vector3(-DashLength, 0f, 0f));
     }
 
     Rigidbody2D rb;
+
+    public Transform RightDashPoint;
+    public Transform LeftDashPoint;
 
     public float Speed = 3f;
     public float SprintSpeed = 4f;
     float currentSpeed;
 
-    public float DashSpeed = 5f;
+    public float DashLength = 1f;
+    public bool canDashRight = true;
+    public bool canDashLeft = true;
 
     public float JumpForce = 10f;
     public int ExtraJumps;
     int extraJumpValue;
     public float FallMultiplier = 2.5f;
     public float LowJumpMultiplier = 2f;
-
-    public float DashForce = 50f;
 
     float moveInput;
     bool isFacingRight = true;
@@ -78,30 +83,31 @@ public class CharacterController2D : MonoBehaviour
         // Dash
         if (Input.GetKey(KeyCode.D))
         {
-            if (Input.GetKeyDown(KeyCode.C))
+            if (canDashRight && Input.GetKeyDown(KeyCode.C))
             {
-                Debug.Log("D");
-                /*float velX = rb.velocity.x;
-                float newVel = velX + DashForce;
-                rb.velocity = new Vector2(newVel, rb.velocity.y);
-                rb.AddForce(Vector2.right * DashForce);*/
-                //rb.velocity = Vector2.right * DashSpeed;
-                transform.Translate(Vector3.right);
+                transform.Translate(new Vector3(DashLength, 0f, 0f));
             }
         }
-        if (Input.GetKey(KeyCode.A))
+        if (canDashLeft && Input.GetKey(KeyCode.A))
         {
             if (Input.GetKeyDown(KeyCode.C))
             {
-                Debug.Log("A");
-                /*float velX = rb.velocity.x;
-                float newVel = velX + DashForce;
-                rb.velocity = new Vector2(newVel, rb.velocity.y);
-                rb.AddForce(Vector2.left * DashForce);*/
-                //rb.velocity = Vector2.left * DashSpeed;
-                transform.Translate(Vector3.left);
+                transform.Translate(new Vector3(-DashLength, 0f, 0f));
             }
         }
         // End Dash
+    }
+
+    public void CanDash(int dashDir, bool canDash)
+    {
+        switch(dashDir)
+        {
+            case 1:
+                canDashRight = canDash;
+                break;
+            case 2:
+                canDashLeft = canDash;
+                break;
+        }
     }
 }
