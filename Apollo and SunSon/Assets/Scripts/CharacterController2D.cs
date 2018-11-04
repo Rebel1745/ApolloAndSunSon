@@ -6,8 +6,8 @@ public class CharacterController2D : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        srs = GetComponentsInChildren<SpriteRenderer>();
-        if(srs == null)
+        sr = GetComponentInChildren<SpriteRenderer>();
+        if(sr == null)
         {
             Debug.LogError("No sprite renderer found");
         }
@@ -21,7 +21,7 @@ public class CharacterController2D : MonoBehaviour
     }
 
     Rigidbody2D rb;
-    SpriteRenderer [] srs;
+    SpriteRenderer sr;
 
     public float Speed = 3f;
     public float SprintSpeed = 4f;
@@ -35,7 +35,7 @@ public class CharacterController2D : MonoBehaviour
     public bool canDashRight = true;
     public bool canDashLeft = true;
     public float DashCooldown = 0.5f;
-    float currentDashCooldown;
+    public float currentDashCooldown;
 
     public float JumpForce = 10f;
     public int ExtraJumps;
@@ -105,7 +105,7 @@ public class CharacterController2D : MonoBehaviour
         //
 
         // Dash
-        if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.D) && currentDashCooldown <= 0)
         {
             if (canDashRight && Input.GetKeyDown(KeyCode.C))
             {
@@ -113,9 +113,9 @@ public class CharacterController2D : MonoBehaviour
                 currentDashCooldown = DashCooldown;
             }
         }
-        if (canDashLeft && Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A) && currentDashCooldown <= 0)
         {
-            if (Input.GetKeyDown(KeyCode.C))
+            if (canDashLeft && Input.GetKeyDown(KeyCode.C))
             {
                 transform.Translate(new Vector3(-currentDashLengthLeft, 0f, 0f));
                 currentDashCooldown = DashCooldown;
@@ -123,8 +123,10 @@ public class CharacterController2D : MonoBehaviour
         }
 
         // lower the dash cooldown
-        currentDashCooldown -= Time.deltaTime;
-
+        if (currentDashCooldown > 0)
+            currentDashCooldown -= Time.deltaTime;
+        else
+            currentDashCooldown = 0;
         // End Dash
 
         // If the input is moving the player right and the player is facing left...
@@ -166,10 +168,6 @@ public class CharacterController2D : MonoBehaviour
         theScale.x *= -1;
         transform.localScale = theScale;*/
 
-        foreach(SpriteRenderer sr in srs)
-        {
-            Debug.Log("Sr");
-            sr.flipX = !sr.flipX;
-        }        
+        sr.flipX = !sr.flipX;       
     }
 }
