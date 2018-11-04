@@ -6,6 +6,11 @@ public class CharacterController2D : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        srs = GetComponentsInChildren<SpriteRenderer>();
+        if(srs == null)
+        {
+            Debug.LogError("No sprite renderer found");
+        }
     }
 
     private void Start()
@@ -16,6 +21,7 @@ public class CharacterController2D : MonoBehaviour
     }
 
     Rigidbody2D rb;
+    SpriteRenderer [] srs;
 
     public float Speed = 3f;
     public float SprintSpeed = 4f;
@@ -28,6 +34,8 @@ public class CharacterController2D : MonoBehaviour
     float currentDashLengthLeft;
     public bool canDashRight = true;
     public bool canDashLeft = true;
+    public float DashCooldown = 0.5f;
+    float currentDashCooldown;
 
     public float JumpForce = 10f;
     public int ExtraJumps;
@@ -102,6 +110,7 @@ public class CharacterController2D : MonoBehaviour
             if (canDashRight && Input.GetKeyDown(KeyCode.C))
             {
                 transform.Translate(new Vector3(currentDashLengthRight, 0f, 0f));
+                currentDashCooldown = DashCooldown;
             }
         }
         if (canDashLeft && Input.GetKey(KeyCode.A))
@@ -109,9 +118,27 @@ public class CharacterController2D : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.C))
             {
                 transform.Translate(new Vector3(-currentDashLengthLeft, 0f, 0f));
+                currentDashCooldown = DashCooldown;
             }
         }
+
+        // lower the dash cooldown
+        currentDashCooldown -= Time.deltaTime;
+
         // End Dash
+
+        // If the input is moving the player right and the player is facing left...
+        if (moveInput > 0 && !isFacingRight)
+        {
+            // ... flip the player.
+            Flip();
+        }
+        // Otherwise if the input is moving the player left and the player is facing right...
+        else if (moveInput < 0 && isFacingRight)
+        {
+            // ... flip the player.
+            Flip();
+        }
     }
 
     public void CanDash(int dashDir, bool canDash, float dashLength)
@@ -127,5 +154,22 @@ public class CharacterController2D : MonoBehaviour
                 currentDashLengthLeft = dashLength;
                 break;
         }
+    }
+
+    private void Flip()
+    {
+        // Switch the way the player is labelled as facing.
+        isFacingRight = !isFacingRight;
+
+        // Multiply the player's x local scale by -1.
+        /*Vector3 theScale = transform.localScale;
+        theScale.x *= -1;
+        transform.localScale = theScale;*/
+
+        foreach(SpriteRenderer sr in srs)
+        {
+            Debug.Log("Sr");
+            sr.flipX = !sr.flipX;
+        }        
     }
 }
