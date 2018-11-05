@@ -23,6 +23,8 @@ public class Enemy : MonoBehaviour {
     {
         target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
         targetRb = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody2D>();
+
+        currentCooldown = ProjectileCooldownMax;
     }
 	
 	// Update is called once per frame
