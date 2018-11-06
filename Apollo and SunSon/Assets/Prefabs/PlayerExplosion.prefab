@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 198689483957231006}
   - component: {fileID: 199512105566049460}
   m_Layer: 0
-  m_Name: ParticleExplosion_enemy
+  m_Name: PlayerExplosion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -173,7 +173,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3
+      scalar: 5
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -226,8 +226,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.8301887, g: 0.37201852, b: 0.37201852, a: 1}
-      maxColor: {r: 0.59607846, g: 0.24705884, b: 0.24705884, a: 1}
+      minColor: {r: 1, g: 0, b: 0, a: 1}
+      maxColor: {r: 1, g: 1, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -288,9 +288,9 @@ ParticleSystem:
         m_NumAlphaKeys: 2
     startSize:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 0.31
-      minScalar: 1
+      minMaxState: 3
+      scalar: 1
+      minScalar: 0.3
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -341,7 +341,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -394,7 +394,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeZ:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -924,8 +924,8 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 3
-        scalar: 8
-        minScalar: 4
+        scalar: 20
+        minScalar: 10
         maxCurve:
           serializedVersion: 2
           m_Curve:
